@@ -1,0 +1,99 @@
+version: '3.7'
+
+services:
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    restart: unless-stopped
+    command: server --console-address ":9001" /data/
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: cloudservise
+      MINIO_ROOT_PASSWORD: alw23lkn23b434hb232b3bv
+    volumes:
+      - minio-storage:/data
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    networks:
+      - app-network
+
+  #  samokater:
+  #    image: samokater:latest
+  #    container_name: samokater
+  #    build:
+  #      context: ./
+  #      dockerfile: samokater.Dockerfile
+  #    restart: unless-stopped
+  #    ports:
+  #      - 8080:8080
+  #    networks:
+  #      - app-network
+  #    environment:
+  #      SERVERPORT: :8080
+  #      DBPATH: user=postgres password=devpass dbname=postgres host=db port=5432 sslmode=disable
+  #      MINIOHOST: minio:9000
+  #      MINIOUSER: ozontech
+  #      MINIOPASS: minio123
+  #    depends_on:
+  #      - db
+  #      - minio
+
+  #  initDB:
+  #    image: mingration:latest
+  #    container_name: init
+  #    environment:
+  #      DBPATH: user=postgres password=devpass dbname=postgres host=db port=5432 sslmode=disable
+  #    build:
+  #      context: ./
+  #      dockerfile: mingration.Dockerfile
+  #    networks:
+  #      - app-network
+  #    depends_on:
+  #      - db
+
+  db:
+    container_name: db
+    image: postgres
+    restart: always
+    environment:
+      POSTGRES_DB: "cloudservice"
+      POSTGRES_USER: "postgres"
+      POSTGRES_PASSWORD: "alw23lkn23b434hb232b3bv"
+    volumes:
+      - pg-storage:/var/lib/postgresql/data
+#      - ./data:/docker-entrypoint-initdb.d
+    ports:
+      - 5433:5432
+    networks:
+      - app-network
+
+#  nginx:
+#    image: nginx-custom:latest
+#    build:
+#      context: ./
+#      dockerfile: nginx.Dockerfile
+#    restart: unless-stopped
+#    tty: true
+#    container_name: nginx
+#    volumes:
+#      - ./nginx.conf:/etc/nginx/nginx.conf
+#    ports:
+#      - 8000:80
+#      - 443:443
+#    networks:
+#      - app-network
+#    depends_on:
+#      - samokater
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  minio-storage:
+  pg-storage:
