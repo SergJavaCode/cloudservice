@@ -9,11 +9,11 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthToken {
-    @JsonSetter("auth-token")
-    public String autHToken;
+   @JsonSetter("auth-token")
+    public String authToken;
 
     @JsonGetter("auth-token")
     public String getAuthToken() {
-        return autHToken;
+        return authToken;
     }
 }

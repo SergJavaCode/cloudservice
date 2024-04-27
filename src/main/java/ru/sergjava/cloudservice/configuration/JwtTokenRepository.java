@@ -1,10 +1,9 @@
 package ru.sergjava.cloudservice.configuration;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.JwtException;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jdk.jfr.ContentType;
@@ -21,6 +20,7 @@ import ru.sergjava.cloudservice.model.AuthToken;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Date;
@@ -40,7 +40,7 @@ public class JwtTokenRepository implements CsrfTokenRepository {
     private Integer envExpirationJwt;
 
     public JwtTokenRepository() {
-        this.secret = SecurityContextHolder.getContext().getAuthentication().getName() + System.nanoTime();
+        this.secret = "23sdkfjLQETWEQWEVsdfhlieuewto7ahdlidaiwe6wetqywfmaFSDMAVDMAJSFDAJSDVHJHTQW23"+System.nanoTime();
     }
 
     @Override
@@ -51,18 +51,17 @@ public class JwtTokenRepository implements CsrfTokenRepository {
                 .atZone(ZoneId.systemDefault()).toInstant());
 
         String token = "";
-        try {
-            token = Jwts.builder()
-                    .setId(id)
-                    .setIssuedAt(now)
-                    .setNotBefore(now)
-                    .setExpiration(exp)
-                    .signWith(SignatureAlgorithm.HS256, secret)
-                    .compact();
-        } catch (JwtException e) {
-            e.printStackTrace();
-            //ignore
-        }
+            token = JWT.create()
+                    .withIssuer(id)
+                    .withIssuedAt(now)
+                    .withExpiresAt(exp)
+                    .sign(Algorithm.HMAC256(secret));
+//                    .setId(id)
+//                    .setIssuedAt(now)
+//                    .setNotBefore(now)
+//                    .setExpiration(exp)
+//                    .signWith(SignatureAlgorithm.HS256, secret)
+//                    .compact();
         return new DefaultCsrfToken("x-csrf-token", "_csrf", token);
     }
 
@@ -71,11 +70,12 @@ public class JwtTokenRepository implements CsrfTokenRepository {
         String jsonAuthToken;
         PrintWriter out = null;
         ObjectMapper objectMapper = new ObjectMapper();
-        response.setContentType("tpplication/json;charset=UTF-8");
+        response.setContentType("application/json;charset=UTF-8");
         AuthToken authToken = new AuthToken(csrfToken.getToken());
-
         try {
             jsonAuthToken = objectMapper.writeValueAsString(authToken);
+            //нужно настроить маппер, что б не двоился!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            System.out.println();
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }

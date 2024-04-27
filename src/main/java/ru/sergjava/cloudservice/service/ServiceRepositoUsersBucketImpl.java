@@ -19,6 +19,7 @@ public class ServiceRepositoUsersBucketImpl implements ServiceUsersBucketInt {
 
     @Override
     public User login(String login, String password) {
+
         User user = repositoryUsersBucketInt.login(login);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
