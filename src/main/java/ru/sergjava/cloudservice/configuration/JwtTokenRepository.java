@@ -70,7 +70,7 @@ public class JwtTokenRepository implements CsrfTokenRepository {
         String jsonAuthToken;
         PrintWriter out = null;
         ObjectMapper objectMapper = new ObjectMapper();
-        response.setContentType("application/json;charset=UTF-8");
+        response.setContentType("application/json;charset=ISO-8859-1");
         AuthToken authToken = new AuthToken(csrfToken.getToken());
         try {
             jsonAuthToken = objectMapper.writeValueAsString(authToken);

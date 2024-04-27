@@ -14,6 +14,8 @@ import org.springframework.security.provisioning.UserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.web.servlet.config.annotation.CorsRegistry;
+import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 import ru.sergjava.cloudservice.configuration.InitialAuthenticationFilter;
 
 import javax.sql.DataSource;
@@ -27,7 +29,7 @@ import static org.springframework.security.config.Customizer.withDefaults;
         prePostEnabled = true,
         jsr250Enabled = true
 )
-public class SecurityConfiguration {
+public class SecurityConfiguration implements WebMvcConfigurer {
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
@@ -59,12 +61,19 @@ public class SecurityConfiguration {
                         .anyRequest().authenticated()
                 )
                 //.formLogin(withDefaults())
-                .httpBasic(withDefaults());
+                .httpBasic().disable();
 
         http.headers(headers -> headers.frameOptions(HeadersConfigurer.FrameOptionsConfig::sameOrigin))
                .csrf(AbstractHttpConfigurer::disable);
-               // .cors(AbstractHttpConfigurer::disable);
+               // .cors.cors(WebConfig.class);
         return http.build();
+    }
+    @Override
+    public void addCorsMappings(CorsRegistry registry) {
+        registry.addMapping("/**")
+                .allowCredentials(true)
+                .allowedOrigins("http://localhost:8081")
+                .allowedMethods("*");
     }
 
 }
