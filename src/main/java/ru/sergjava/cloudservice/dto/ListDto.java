@@ -5,13 +5,15 @@ import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 
-/**
- * @author Sergei Iurochkin
- */
 @Getter
 @Setter
 @ToString
-public class UserDto {
-    private String login;
-    private String password;
+@AllArgsConstructor
+public class ListDto {
+    private String filename;
+    private Integer size;
+    public ListDto getListDto(){
+        return this;
+    }
+
 }

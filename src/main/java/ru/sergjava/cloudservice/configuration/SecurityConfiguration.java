@@ -1,6 +1,7 @@
 package ru.sergjava.cloudservice.configuration;
 
 import jakarta.servlet.MultipartConfigElement;
+import org.hibernate.SessionFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.web.servlet.MultipartConfigFactory;
 import org.springframework.context.annotation.Bean;
@@ -110,6 +111,5 @@ public class SecurityConfiguration implements WebMvcConfigurer {
         factory.setMaxRequestSize(DataSize.parse("128MB"));
         return factory.createMultipartConfig();
     }
-
 
 }

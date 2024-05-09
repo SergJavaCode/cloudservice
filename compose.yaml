@@ -10,8 +10,8 @@ services:
       - "9000:9000"
       - "9001:9001"
     environment:
-      MINIO_ROOT_USER: cloudservise
-      MINIO_ROOT_PASSWORD: alw23lkn23b434hb232b3bv
+      MINIO_ACCESS_KEY: cloudservice
+      MINIO_SECRET_KEY: alw23lkn23b434hb232b3bv
     volumes:
       - minio-storage:/data
     healthcheck:

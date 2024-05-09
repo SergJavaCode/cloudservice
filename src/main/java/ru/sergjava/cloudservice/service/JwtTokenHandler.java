@@ -8,7 +8,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import lombok.Getter;
-import org.springframework.beans.factory.annotation.Value;;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -90,7 +90,10 @@ public class JwtTokenHandler {
     }
 
     public void deleteToken( Authentication authentication) {
-        tokenRepository.delTokenByName(authentication.getPrincipal().toString());
+        if(authentication!=null){
+            tokenRepository.delTokenByName(authentication.getPrincipal().toString());
+        }
+
     }
 
     public Optional<AuthToken> loadToken(String userName) {

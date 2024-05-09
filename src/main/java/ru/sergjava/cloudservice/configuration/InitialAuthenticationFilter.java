@@ -76,10 +76,10 @@ public class InitialAuthenticationFilter extends OncePerRequestFilter {
                 }
                 response.setHeader("Authorization", "OK");
                 response.setStatus(HttpServletResponse.SC_OK);
-                response.setContentType("application/json;charset=ISO-8859-1");
+                response.setContentType("application/json;charset=UTF-8");
             } catch (BadCredentialsException | UsernameNotFoundException e) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setContentType("application/json;charset=ISO-8859-1");
+                response.setContentType("application/json;charset=UTF-8");
 
                 //пишем в тело json error
                 ObjectMapper objectMapper = new ObjectMapper();
