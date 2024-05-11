@@ -1,9 +1,6 @@
 package ru.sergjava.cloudservice.controller;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.minio.errors.*;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.HttpServletRequest;
@@ -36,14 +33,14 @@ public class Controller {
     @RolesAllowed({"USER", "ADMIN"})
     @PostMapping("/file")
     public void file(@RequestParam("filename") String fileName,
-                       @RequestBody MultipartFile file, HttpServletResponse response) throws RegionConflictException, ServerException, InvalidBucketNameException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+                     @RequestBody MultipartFile file, HttpServletResponse response) throws RegionConflictException, ServerException, InvalidBucketNameException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         serviceUsersBucketImpl.fileUpLoad(fileName, file, response);
     }
 
     @RolesAllowed({"USER", "ADMIN"})
     @GetMapping("/list")
-    public ArrayNode list(HttpServletRequest request, HttpServletResponse response, @RequestParam("limit") Integer limit) throws JsonProcessingException {
-        return  serviceUsersBucketImpl.listFiles(response, limit);
+    public ArrayNode list(HttpServletRequest request, HttpServletResponse response, @RequestParam("limit") Integer limit) {
+        return serviceUsersBucketImpl.listFiles(response, limit);
     }
 
     @RolesAllowed({"USER", "ADMIN"})
@@ -58,6 +55,9 @@ public class Controller {
         serviceUsersBucketImpl.editFileName(oldFileName, filename, response);
     }
 
-
-
+    @RolesAllowed({"USER", "ADMIN"})
+    @GetMapping("/file")
+    public void downloadFile(@RequestParam("filename") String fileName) {
+        serviceUsersBucketImpl.downloadFile(fileName);
+    }
 }

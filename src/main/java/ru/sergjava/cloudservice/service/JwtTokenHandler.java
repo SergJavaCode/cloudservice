@@ -6,16 +6,11 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jakarta.servlet.http.HttpSession;
-import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.csrf.CsrfToken;
-import org.springframework.security.web.csrf.DefaultCsrfToken;
 import org.springframework.stereotype.Component;
-import org.springframework.stereotype.Repository;
 import ru.sergjava.cloudservice.model.AuthToken;
 import ru.sergjava.cloudservice.repository.TokenRepository;
 
@@ -89,8 +84,8 @@ public class JwtTokenHandler {
         }
     }
 
-    public void deleteToken( Authentication authentication) {
-        if(authentication!=null){
+    public void deleteToken(Authentication authentication) {
+        if (authentication != null) {
             tokenRepository.delTokenByName(authentication.getPrincipal().toString());
         }
 

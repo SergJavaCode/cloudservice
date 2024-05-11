@@ -10,10 +10,11 @@ import java.util.UUID;
 @Setter
 @ToString
 public class ErrorDto {
-    public ErrorDto(String message){
-        this.message=message;
-        this.id=Math.abs(UUID.randomUUID().hashCode());
+    public ErrorDto(String message) {
+        this.message = message;
+        this.id = Math.abs(UUID.randomUUID().hashCode());
     }
+
     private String message;
     private Integer id;
 }

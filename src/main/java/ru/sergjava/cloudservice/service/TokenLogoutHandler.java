@@ -13,6 +13,7 @@ public class TokenLogoutHandler implements LogoutHandler {
     }
 
     JwtTokenHandler jwtTokenHandler;
+
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         jwtTokenHandler.deleteToken(authentication);

@@ -3,15 +3,9 @@ package ru.sergjava.cloudservice.repository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.minio.*;
 import io.minio.errors.*;
-import io.minio.messages.Bucket;
 import io.minio.messages.Item;
 import jakarta.servlet.http.HttpServletResponse;
-import org.checkerframework.checker.units.qual.A;
-import org.checkerframework.checker.units.qual.Volume;
 import org.hibernate.SessionFactory;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.context.annotation.Bean;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import ru.sergjava.cloudservice.dto.ErrorDto;
@@ -23,8 +17,6 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintWriter;
 import java.net.URLDecoder;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
@@ -95,7 +87,7 @@ public class BucketRepository {
     public List<ListDto> listFiles(User user, HttpServletResponse response, Integer limit) {
         List<ListDto> list = new ArrayList<>();
         String userBucket = usersRepository.getBucketUser(user.getUsername());
-        if(userBucket==null) {
+        if (userBucket == null) {
             return list;
         }
         Iterable<Result<Item>> results = minioClient.listObjects(ListObjectsArgs.builder().bucket(userBucket).maxKeys(limit).build());
@@ -127,69 +119,102 @@ public class BucketRepository {
         }
         return list;
     }
-public void deleteFile(String fileName, User user, HttpServletResponse response){
-    try {
-        minioClient.removeObject(RemoveObjectArgs.builder()
-                .bucket(user.getBucket())
-                .object(fileName)
-                .build());
-        response.setStatus(200);
-    } catch (ErrorResponseException e) {
-        throw new RuntimeException(e);
-    } catch (InsufficientDataException e) {
-        throw new RuntimeException(e);
-    } catch (InternalException e) {
-        throw new RuntimeException(e);
-    } catch (InvalidBucketNameException e) {
-        throw new RuntimeException(e);
-    } catch (InvalidKeyException e) {
-        throw new RuntimeException(e);
-    } catch (InvalidResponseException e) {
-        throw new RuntimeException(e);
-    } catch (IOException e) {
-        throw new RuntimeException(e);
-    } catch (NoSuchAlgorithmException e) {
-        throw new RuntimeException(e);
-    } catch (ServerException e) {
-        throw new RuntimeException(e);
-    } catch (XmlParserException e) {
-        throw new RuntimeException(e);
-    }
-}
-public void editFileName(String fileName, String newName, User user, HttpServletResponse response){
-    try {
-        minioClient.copyObject(
-                CopyObjectArgs.builder()
-                        .bucket(user.getBucket())
-                        .object(newName)
-                        .source(
-                                CopySource.builder()
-                                        .bucket(user.getBucket())
-                                        .object(fileName)
-                                        .build())
-                        .build());
-    } catch (ErrorResponseException e) {
-        throw new RuntimeException(e);
-    } catch (InsufficientDataException e) {
-        throw new RuntimeException(e);
-    } catch (InternalException e) {
-        throw new RuntimeException(e);
-    } catch (InvalidBucketNameException e) {
-        throw new RuntimeException(e);
-    } catch (InvalidKeyException e) {
-        throw new RuntimeException(e);
-    } catch (InvalidResponseException e) {
-        throw new RuntimeException(e);
-    } catch (IOException e) {
-        throw new RuntimeException(e);
-    } catch (NoSuchAlgorithmException e) {
-        throw new RuntimeException(e);
-    } catch (ServerException e) {
-        throw new RuntimeException(e);
-    } catch (XmlParserException e) {
-        throw new RuntimeException(e);
+
+    public void deleteFile(String fileName, User user, HttpServletResponse response) {
+        try {
+            minioClient.removeObject(RemoveObjectArgs.builder()
+                    .bucket(user.getBucket())
+                    .object(fileName)
+                    .build());
+            response.setStatus(200);
+        } catch (ErrorResponseException e) {
+            throw new RuntimeException(e);
+        } catch (InsufficientDataException e) {
+            throw new RuntimeException(e);
+        } catch (InternalException e) {
+            throw new RuntimeException(e);
+        } catch (InvalidBucketNameException e) {
+            throw new RuntimeException(e);
+        } catch (InvalidKeyException e) {
+            throw new RuntimeException(e);
+        } catch (InvalidResponseException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        } catch (ServerException e) {
+            throw new RuntimeException(e);
+        } catch (XmlParserException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-  //  deleteFile(fileName, user, response);
-}
+    public void editFileName(String fileName, String newName, User user, HttpServletResponse response) {
+        try {
+            minioClient.copyObject(
+                    CopyObjectArgs.builder()
+                            .bucket(user.getBucket())
+                            .object(newName)
+                            .source(
+                                    CopySource.builder()
+                                            .bucket(user.getBucket())
+                                            .object(fileName)
+                                            .build())
+                            .build());
+        } catch (ErrorResponseException e) {
+            throw new RuntimeException(e);
+        } catch (InsufficientDataException e) {
+            throw new RuntimeException(e);
+        } catch (InternalException e) {
+            throw new RuntimeException(e);
+        } catch (InvalidBucketNameException e) {
+            throw new RuntimeException(e);
+        } catch (InvalidKeyException e) {
+            throw new RuntimeException(e);
+        } catch (InvalidResponseException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        } catch (ServerException e) {
+            throw new RuntimeException(e);
+        } catch (XmlParserException e) {
+            throw new RuntimeException(e);
+        }
+
+        //  deleteFile(fileName, user, response);
+    }
+
+    public void downloadFile(String fileName, User user) {
+        try {
+            minioClient.downloadObject(
+                    DownloadObjectArgs.builder()
+                            .bucket(user.getBucket())
+                            .object(fileName)
+                            .filename(fileName)
+                            .build());
+        } catch (ErrorResponseException e) {
+            throw new RuntimeException(e);
+        } catch (InsufficientDataException e) {
+            throw new RuntimeException(e);
+        } catch (InternalException e) {
+            throw new RuntimeException(e);
+        } catch (InvalidBucketNameException e) {
+            throw new RuntimeException(e);
+        } catch (InvalidKeyException e) {
+            throw new RuntimeException(e);
+        } catch (InvalidResponseException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        } catch (ServerException e) {
+            throw new RuntimeException(e);
+        } catch (XmlParserException e) {
+            throw new RuntimeException(e);
+        }
+    }
 }

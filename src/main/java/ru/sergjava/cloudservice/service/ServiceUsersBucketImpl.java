@@ -16,7 +16,6 @@ import ru.sergjava.cloudservice.repository.BucketRepository;
 import ru.sergjava.cloudservice.repository.UsersRepository;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.util.List;
@@ -72,6 +71,11 @@ public class ServiceUsersBucketImpl implements ServiceUsersBucketInt {
     @Override
     public void editFileName(String fileName, String newName, HttpServletResponse response) {
         bucketRepository.editFileName(fileName, newName, getUser(), response);
+    }
+
+    @Override
+    public void downloadFile(String fileName) {
+        bucketRepository.downloadFile(fileName, getUser());
     }
 
     private User getUser() {

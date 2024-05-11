@@ -12,7 +12,8 @@ import lombok.ToString;
 public class ListDto {
     private String filename;
     private Integer size;
-    public ListDto getListDto(){
+
+    public ListDto getListDto() {
         return this;
     }
 

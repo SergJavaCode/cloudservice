@@ -35,10 +35,8 @@ public class InitialAuthenticationFilter extends OncePerRequestFilter {
         this.bodyUserDetailsAuthenticationProvider = bodyUserDetailsAuthenticationProvider;
         this.jwtTokenHandler = jwtTokenHandler;
     }
-
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
-        // request.setAttribute(HttpServletResponse.class.getName(), response);
         //аутентификация по JSON из Body
         SecurityContext securityContext = SecurityContextHolder.getContext();
         if (request.getContentType() == null || request.getContentType().contains("multipart/form-data")) {////??????надо ли
@@ -47,7 +45,7 @@ public class InitialAuthenticationFilter extends OncePerRequestFilter {
 
 
         Authentication authentication = securityContext.getAuthentication();
-        if (authentication == null && request.getHeader("auth-token")==null) {
+        if (authentication == null && request.getHeader("auth-token") == null) {
             String bodyJson = request.getReader().lines().collect(Collectors.joining()); //читаем всё тело
             ObjectMapper mapper = new ObjectMapper();
             UserDto userDto = mapper.readValue(bodyJson, UserDto.class);
@@ -70,9 +68,8 @@ public class InitialAuthenticationFilter extends OncePerRequestFilter {
                 session.setAttribute(SPRING_SECURITY_CONTEXT_KEY, context);
                 //работа с токеном
                 Optional<AuthToken> authToken = jwtTokenHandler.loadToken(userName);
-                //AuthToken authToken = null;
                 if (authToken.isEmpty()) {   //если токен еще не выдавался, генерируем его и сохраняем
-                    authToken = Optional.ofNullable(jwtTokenHandler.generateToken(response, userName)); //генерируем и сохраняем токен
+                    Optional.ofNullable(jwtTokenHandler.generateToken(response, userName)); //генерируем и сохраняем токен
                 }
                 response.setHeader("Authorization", "OK");
                 response.setStatus(HttpServletResponse.SC_OK);
@@ -80,7 +77,6 @@ public class InitialAuthenticationFilter extends OncePerRequestFilter {
             } catch (BadCredentialsException | UsernameNotFoundException e) {
                 response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                 response.setContentType("application/json;charset=UTF-8");
-
                 //пишем в тело json error
                 ObjectMapper objectMapper = new ObjectMapper();
                 PrintWriter out = null;
@@ -97,8 +93,4 @@ public class InitialAuthenticationFilter extends OncePerRequestFilter {
 
     }
 
-//    @Override
-//    protected boolean shouldNotFilter(HttpServletRequest request) {
-//        return request.getServletPath().contains("/file");
-//    }
 }

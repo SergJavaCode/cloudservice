@@ -10,12 +10,18 @@ import java.io.IOException;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
-public interface ServiceUsersBucketInt{
-   // public List<String> getListOfFiles(String city);
+public interface ServiceUsersBucketInt {
+    // public List<String> getListOfFiles(String city);
 
     public User login(String login, String password);
-    public void fileUpLoad(String name, MultipartFile file,  HttpServletResponse response) throws RegionConflictException, ServerException, InvalidBucketNameException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException;
+
+    public void fileUpLoad(String name, MultipartFile file, HttpServletResponse response) throws RegionConflictException, ServerException, InvalidBucketNameException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException;
+
     public ArrayNode listFiles(HttpServletResponse response, Integer limit);
+
     public void deleteFile(String fileName, HttpServletResponse response);
+
     public void editFileName(String fileName, String newName, HttpServletResponse response);
+
+    public void downloadFile(String fileName);
 }

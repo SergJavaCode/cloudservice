@@ -1,7 +1,6 @@
 package ru.sergjava.cloudservice.configuration;
 
 import jakarta.servlet.MultipartConfigElement;
-import org.hibernate.SessionFactory;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
 import org.springframework.boot.web.servlet.MultipartConfigFactory;
 import org.springframework.context.annotation.Bean;
@@ -9,6 +8,7 @@ import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.JdbcUserDetailsManager;
@@ -17,10 +17,7 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.HeaderWriterLogoutHandler;
 import org.springframework.security.web.authentication.logout.HttpStatusReturningLogoutSuccessHandler;
 import org.springframework.security.web.authentication.www.BasicAuthenticationFilter;
-import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter;
-import org.springframework.security.web.server.header.ClearSiteDataServerHttpHeadersWriter;
-import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -39,10 +36,10 @@ import javax.sql.DataSource;
         jsr250Enabled = true
 )
 public class SecurityConfiguration implements WebMvcConfigurer {
-    private JwtTokenHandler jwtTokenHandler;
+
     private TokenLogoutHandler tokenLogoutHandler;
-    public SecurityConfiguration(JwtTokenHandler jwtTokenHandler, TokenLogoutHandler tokenLogoutHandler) {
-        this.jwtTokenHandler = jwtTokenHandler;
+
+    public SecurityConfiguration(TokenLogoutHandler tokenLogoutHandler) {
         this.tokenLogoutHandler = tokenLogoutHandler;
     }
 
@@ -53,19 +50,7 @@ public class SecurityConfiguration implements WebMvcConfigurer {
 
     @Bean
     UserDetailsManager users(DataSource dataSource) {
-//        UserDetails user = User.builder()
-//                .username("user@mail.ru")
-//                .password("{bcrypt}$2a$10$/9AA6UVybqEma3iDn3Akf.qOpJuwETM8g00kjA/PM5JGxspfqXLci")
-//                .roles("USER")
-//                .build();
-//        UserDetails admin = User.builder()
-//                .username("admin@mail.ru")
-//                .password("{bcrypt}$2a$10$/9AA6UVybqEma3iDn3Akf.qOpJuwETM8g00kjA/PM5JGxspfqXLci")
-//                .roles("USER", "ADMIN")
-//                .build();
         JdbcUserDetailsManager users = new JdbcUserDetailsManager(dataSource);
-//        users.createUser(user);
-//        users.createUser(admin);
         return users;
     }
 
@@ -73,7 +58,7 @@ public class SecurityConfiguration implements WebMvcConfigurer {
     public SecurityFilterChain filterChain(HttpSecurity http, InitialAuthenticationFilter initialAuthenticationFilter, ValidationTokenFilter validationTokenFilter) throws Exception {
         http.addFilterAt(initialAuthenticationFilter, BasicAuthenticationFilter.class);
         http.addFilterAfter(validationTokenFilter, InitialAuthenticationFilter.class);
-        http.authorizeHttpRequests(v -> v.requestMatchers("/login").permitAll());       //временно убираем уатентификацию для теста в постмене
+        //http.authorizeHttpRequests(v -> v.requestMatchers("/file").permitAll());       //временно убираем уатентификацию для теста в постмене
         http.csrf(AbstractHttpConfigurer::disable);
         HeaderWriterLogoutHandler clearSiteData = new HeaderWriterLogoutHandler(new ClearSiteDataHeaderWriter(ClearSiteDataHeaderWriter.Directive.ALL));
         http
@@ -87,9 +72,6 @@ public class SecurityConfiguration implements WebMvcConfigurer {
                                 .addLogoutHandler(tokenLogoutHandler)
                                 .invalidateHttpSession(true)
                                 .clearAuthentication(true)
-
-                              //  .logoutUrl("/logout").permitAll()
-                               // .logoutRequestMatcher(new AntPathRequestMatcher("/logout"))
                                 .logoutSuccessHandler(new HttpStatusReturningLogoutSuccessHandler())
                 )
                 .httpBasic(AbstractHttpConfigurer::disable);
