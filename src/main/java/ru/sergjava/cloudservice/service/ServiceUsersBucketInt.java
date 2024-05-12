@@ -7,6 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import ru.sergjava.cloudservice.model.User;
 
 import java.io.IOException;
+import java.io.InputStream;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 
@@ -15,7 +16,7 @@ public interface ServiceUsersBucketInt {
 
     public User login(String login, String password);
 
-    public void fileUpLoad(String name, MultipartFile file, HttpServletResponse response) throws RegionConflictException, ServerException, InvalidBucketNameException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException;
+    public void fileUpLoad(String name, MultipartFile file, HttpServletResponse response) throws  ServerException,  InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException;
 
     public ArrayNode listFiles(HttpServletResponse response, Integer limit);
 
@@ -24,4 +25,5 @@ public interface ServiceUsersBucketInt {
     public void editFileName(String fileName, String newName, HttpServletResponse response);
 
     public void downloadFile(String fileName);
+    public void getFile(String fileName, HttpServletResponse response);
 }

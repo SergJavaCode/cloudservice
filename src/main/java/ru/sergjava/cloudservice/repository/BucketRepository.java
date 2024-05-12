@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import io.minio.*;
 import io.minio.errors.*;
 import io.minio.messages.Item;
+import jakarta.persistence.criteria.CriteriaBuilder;
 import jakarta.servlet.http.HttpServletResponse;
 import org.hibernate.SessionFactory;
 import org.springframework.stereotype.Component;
@@ -37,7 +38,7 @@ public class BucketRepository {
             .credentials("cloudservice", "alw23lkn23b434hb232b3bv")
             .build();
 
-    public boolean checkBucketByUser(User user) throws ServerException, InvalidBucketNameException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public boolean checkBucketByUser(User user) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         if (minioClient.bucketExists(BucketExistsArgs.builder().bucket(user.getUsername().replace('@', '.')).build())) {
             return true;
         } else {
@@ -45,7 +46,7 @@ public class BucketRepository {
         }
     }
 
-    public void makeBucketByUser(User user) throws RegionConflictException, ServerException, InvalidBucketNameException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public void makeBucketByUser(User user) throws  ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         minioClient.makeBucket(
                 MakeBucketArgs.builder()
                         .bucket(user.getUsername().replace('@', '.'))
@@ -54,7 +55,7 @@ public class BucketRepository {
         usersRepository.updateUserBucket(user.getUsername(), user.getUsername().replace('@', '.'));
     }
 
-    public void fileUpload(String fileName, MultipartFile file, User user, HttpServletResponse response) throws ServerException, InvalidBucketNameException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException, RegionConflictException {
+    public void fileUpload(String fileName, MultipartFile file, User user, HttpServletResponse response) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException{
         if (!checkBucketByUser(user)) {
             makeBucketByUser(user);
         }
@@ -62,7 +63,7 @@ public class BucketRepository {
         try {
             InputStream inputStream = new ByteArrayInputStream(file.getBytes());
             minioClient.putObject(
-                    PutObjectArgs.builder().bucket(user.getUsername().replace('@', '.')).object(fileName).stream( //надо User сделать персист через менеджера
+                    PutObjectArgs.builder().bucket(user.getUsername().replace('@', '.')).object(fileName).stream(
                                     inputStream, -1, 5242880)
                             .build());
             System.out.println("файл " + fileName + " загружен");
@@ -84,6 +85,32 @@ public class BucketRepository {
 
     }
 
+    public Long getLengthObject(User user,String fileName){
+        Long size;
+        try {
+            StatObjectResponse stat  = minioClient.statObject( StatObjectArgs.builder().bucket(user.getBucket()).object(fileName).build());
+            size= stat.size();
+        } catch (ErrorResponseException e) {
+            throw new RuntimeException(e);
+        } catch (InsufficientDataException e) {
+            throw new RuntimeException(e);
+        } catch (InternalException e) {
+            throw new RuntimeException(e);
+        } catch (InvalidKeyException e) {
+            throw new RuntimeException(e);
+        } catch (InvalidResponseException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        } catch (ServerException e) {
+            throw new RuntimeException(e);
+        } catch (XmlParserException e) {
+            throw new RuntimeException(e);
+        }
+        return size;
+    }
     public List<ListDto> listFiles(User user, HttpServletResponse response, Integer limit) {
         List<ListDto> list = new ArrayList<>();
         String userBucket = usersRepository.getBucketUser(user.getUsername());
@@ -100,8 +127,6 @@ public class BucketRepository {
             } catch (InsufficientDataException e) {
                 throw new RuntimeException(e);
             } catch (InternalException e) {
-                throw new RuntimeException(e);
-            } catch (InvalidBucketNameException e) {
                 throw new RuntimeException(e);
             } catch (InvalidKeyException e) {
                 throw new RuntimeException(e);
@@ -132,8 +157,6 @@ public class BucketRepository {
         } catch (InsufficientDataException e) {
             throw new RuntimeException(e);
         } catch (InternalException e) {
-            throw new RuntimeException(e);
-        } catch (InvalidBucketNameException e) {
             throw new RuntimeException(e);
         } catch (InvalidKeyException e) {
             throw new RuntimeException(e);
@@ -168,8 +191,6 @@ public class BucketRepository {
             throw new RuntimeException(e);
         } catch (InternalException e) {
             throw new RuntimeException(e);
-        } catch (InvalidBucketNameException e) {
-            throw new RuntimeException(e);
         } catch (InvalidKeyException e) {
             throw new RuntimeException(e);
         } catch (InvalidResponseException e) {
@@ -201,9 +222,7 @@ public class BucketRepository {
             throw new RuntimeException(e);
         } catch (InternalException e) {
             throw new RuntimeException(e);
-        } catch (InvalidBucketNameException e) {
-            throw new RuntimeException(e);
-        } catch (InvalidKeyException e) {
+        }  catch (InvalidKeyException e) {
             throw new RuntimeException(e);
         } catch (InvalidResponseException e) {
             throw new RuntimeException(e);
@@ -217,4 +236,33 @@ public class BucketRepository {
             throw new RuntimeException(e);
         }
     }
+
+    public InputStream getFile(String fileName, User user) {
+        try {
+          return  minioClient.getObject(
+                    GetObjectArgs.builder()
+                            .bucket(user.getBucket())
+                            .object(fileName)
+                            .build());
+        } catch (ErrorResponseException e) {
+            throw new RuntimeException(e);
+        } catch (InsufficientDataException e) {
+            throw new RuntimeException(e);
+        } catch (InternalException e) {
+            throw new RuntimeException(e);
+        }  catch (InvalidKeyException e) {
+            throw new RuntimeException(e);
+        } catch (InvalidResponseException e) {
+            throw new RuntimeException(e);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        } catch (NoSuchAlgorithmException e) {
+            throw new RuntimeException(e);
+        } catch (ServerException e) {
+            throw new RuntimeException(e);
+        } catch (XmlParserException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
 }
