@@ -14,13 +14,12 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
-import ru.sergjava.cloudservice.dto.ErrorDto;
 import ru.sergjava.cloudservice.dto.UserDto;
+import ru.sergjava.cloudservice.exceptions.BadRequestExceptionCust;
 import ru.sergjava.cloudservice.model.AuthToken;
 import ru.sergjava.cloudservice.service.JwtTokenHandler;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -75,17 +74,7 @@ public class InitialAuthenticationFilter extends OncePerRequestFilter {
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.setContentType("application/json;charset=UTF-8");
             } catch (BadCredentialsException | UsernameNotFoundException e) {
-                response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
-                response.setContentType("application/json;charset=UTF-8");
-                //пишем в тело json error
-                ObjectMapper objectMapper = new ObjectMapper();
-                PrintWriter out = null;
-                out = response.getWriter();
-                ErrorDto errorDto = new ErrorDto(e.getMessage());
-                String jsonErrorDto = objectMapper.writeValueAsString(errorDto);
-                out.println(jsonErrorDto);
-                out.close();
-                logger.error(errorDto);
+                throw new BadRequestExceptionCust("Bad credentials");
             }
 
 

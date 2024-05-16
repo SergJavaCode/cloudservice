@@ -13,7 +13,6 @@ import java.util.List;
 public class User {
     @Id
     private String username;
-
     private Boolean enabled;
     private String password;
     private String bucket;

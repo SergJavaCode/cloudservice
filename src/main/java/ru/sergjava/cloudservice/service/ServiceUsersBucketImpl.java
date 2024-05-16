@@ -108,7 +108,7 @@ public class ServiceUsersBucketImpl implements ServiceUsersBucketInt {
         }
 
 
-//                BufferedInputStream bis = new BufferedInputStream(inputStream);
+//                BufferedInputStream bis = new BufferedInputStream(bucketRepository.getFile(fileName, getUser()));
 //                byte barray[] = new byte[5000];
 //                byte echo[]   = null;
 //                int i         = 0;

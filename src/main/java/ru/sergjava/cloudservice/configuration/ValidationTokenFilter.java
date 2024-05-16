@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
+import ru.sergjava.cloudservice.exceptions.UnauthorizedExceptionCust;
 import ru.sergjava.cloudservice.service.JwtTokenHandler;
 
 import java.io.IOException;
@@ -23,8 +24,7 @@ public class ValidationTokenFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
         //если токен недействителен выбрасывваем ошибку в ответ и  прерываем обработку запроса
         if (!jwtTokenHandler.validationToken(request)) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED);
-            return;
+            throw new UnauthorizedExceptionCust("Unauthorized");
         }
         filterChain.doFilter(request, response);
 

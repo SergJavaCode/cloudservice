@@ -39,7 +39,6 @@ public class Controller {
     @PostMapping("/login")
     public void login(@RequestBody String login, @RequestBody String password) {
 
-
     }
 
     @RolesAllowed({"USER", "ADMIN"})
