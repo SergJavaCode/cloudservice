@@ -34,6 +34,7 @@ public class InitialAuthenticationFilter extends OncePerRequestFilter {
         this.bodyUserDetailsAuthenticationProvider = bodyUserDetailsAuthenticationProvider;
         this.jwtTokenHandler = jwtTokenHandler;
     }
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws IOException, ServletException {
         //аутентификация по JSON из Body

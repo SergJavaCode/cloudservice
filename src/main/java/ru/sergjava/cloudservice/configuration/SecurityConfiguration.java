@@ -21,7 +21,6 @@ import org.springframework.security.web.header.writers.ClearSiteDataHeaderWriter
 import org.springframework.util.unit.DataSize;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
-import ru.sergjava.cloudservice.service.JwtTokenHandler;
 import ru.sergjava.cloudservice.service.TokenLogoutHandler;
 
 import javax.sql.DataSource;

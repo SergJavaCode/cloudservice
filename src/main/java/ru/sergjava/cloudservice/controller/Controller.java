@@ -1,30 +1,17 @@
 package ru.sergjava.cloudservice.controller;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import io.minio.errors.*;
-import jakarta.annotation.Resource;
 import jakarta.annotation.security.RolesAllowed;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import jdk.jfr.ContentType;
-import org.apache.tomcat.util.http.fileupload.IOUtils;
-import org.apache.tomcat.util.http.fileupload.util.Streams;
-import org.springframework.core.io.UrlResource;
-import org.springframework.http.*;
-import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import ru.sergjava.cloudservice.dto.ErrorDto;
-import ru.sergjava.cloudservice.dto.GetFileBody;
 import ru.sergjava.cloudservice.service.JwtTokenHandler;
 import ru.sergjava.cloudservice.service.ServiceUsersBucketImpl;
 
-import java.io.*;
-import java.net.MalformedURLException;
-import java.security.DigestInputStream;
+import java.io.IOException;
 import java.security.InvalidKeyException;
-import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 @RestController
@@ -44,7 +31,7 @@ public class Controller {
     @RolesAllowed({"USER", "ADMIN"})
     @PostMapping("/file")
     public void file(@RequestParam("filename") String fileName,
-                     @RequestBody MultipartFile file, HttpServletResponse response) throws  ServerException,  InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+                     @RequestBody MultipartFile file, HttpServletResponse response) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         serviceUsersBucketImpl.fileUpLoad(fileName, file, response);
     }
 
