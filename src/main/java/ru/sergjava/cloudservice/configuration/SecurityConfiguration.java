@@ -57,7 +57,6 @@ public class SecurityConfiguration implements WebMvcConfigurer {
     public SecurityFilterChain filterChain(HttpSecurity http, InitialAuthenticationFilter initialAuthenticationFilter, ValidationTokenFilter validationTokenFilter) throws Exception {
         http.addFilterAt(initialAuthenticationFilter, BasicAuthenticationFilter.class);
         http.addFilterAfter(validationTokenFilter, InitialAuthenticationFilter.class);
-        http.authorizeHttpRequests(v -> v.requestMatchers("/file").permitAll());       //временно убираем уатентификацию для теста в постмене
         http.csrf(AbstractHttpConfigurer::disable);
         HeaderWriterLogoutHandler clearSiteData = new HeaderWriterLogoutHandler(new ClearSiteDataHeaderWriter(ClearSiteDataHeaderWriter.Directive.ALL));
         http

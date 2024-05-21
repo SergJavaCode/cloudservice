@@ -4,6 +4,7 @@ import io.minio.*;
 import io.minio.errors.*;
 import io.minio.messages.Item;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
 import ru.sergjava.cloudservice.dto.ListDto;
@@ -20,7 +21,7 @@ import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.List;
 
-
+@Log4j2
 @Component
 public class BucketRepository {
     private UsersRepository usersRepository;
@@ -36,8 +37,10 @@ public class BucketRepository {
 
     public boolean checkBucketByUser(User user) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         if (minioClient.bucketExists(BucketExistsArgs.builder().bucket(user.getUsername().replace('@', '.')).build())) {
+            log.info("Bucket "+ user.getUsername().replace('@', '.')+ " найден.");
             return true;
         } else {
+            log.info("Bucket "+ user.getUsername().replace('@', '.')+ " не обнаружен.");
             return false;
         }
     }
@@ -48,10 +51,12 @@ public class BucketRepository {
                         .bucket(user.getUsername().replace('@', '.'))
                         .build());
         usersRepository.updateUserBucket(user.getUsername(), user.getUsername().replace('@', '.'));
+        log.info("Bucket "+ user.getUsername().replace('@', '.')+ " успешно создан.");
     }
 
-    public void fileUpload(String fileName, MultipartFile file, User user, HttpServletResponse response) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
+    public void fileUpload(String fileName, MultipartFile file, User user) throws ServerException, InsufficientDataException, ErrorResponseException, IOException, NoSuchAlgorithmException, InvalidKeyException, InvalidResponseException, XmlParserException, InternalException {
         if (!checkBucketByUser(user)) {
+            log.info("Bucket для " +user.getUsername() + " не обнаружен.");
             makeBucketByUser(user);
         }
         try {
@@ -60,38 +65,29 @@ public class BucketRepository {
                     PutObjectArgs.builder().bucket(user.getUsername().replace('@', '.')).object(fileName).stream(
                                     inputStream, -1, 5242880)
                             .build());
-            System.out.println("файл " + fileName + " загружен");
-
         } catch (Exception e) {
+            log.error("File upload error");
             throw new BadRequestExceptionCust("File upload error");
-//            response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-//            response.setContentType("application/json;charset=UTF-8");
-//
-//            //пишем в тело json error
-//            ObjectMapper objectMapper = new ObjectMapper();
-//            PrintWriter out = null;
-//            out = response.getWriter();
-//            ErrorDto errorDto = new ErrorDto(e.getMessage());
-//            String jsonErrorDto = objectMapper.writeValueAsString(errorDto);
-//            out.println(jsonErrorDto);
-//            out.close();
         }
     }
 
     public Long getLengthObject(User user, String fileName) {
         Long size;
+        log.info("Определение размера объекта.");
         try {
             StatObjectResponse stat = minioClient.statObject(StatObjectArgs.builder().bucket(user.getBucket()).object(fileName).build());
             size = stat.size();
         } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
                  InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
                  XmlParserException e) {
+            log.error(e);
             throw new RuntimeException(e);
         }
         return size;
     }
 
-    public List<ListDto> listFiles(User user, HttpServletResponse response, Integer limit) {
+    public List<ListDto> listFiles(User user, Integer limit) {
+        log.info("Вывод списка объектов поьзователя " + user.getUsername());
         List<ListDto> list = new ArrayList<>();
         String userBucket = usersRepository.getBucketUser(user.getUsername());
         if (userBucket == null) {
@@ -105,27 +101,31 @@ public class BucketRepository {
             } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
                      InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
                      XmlParserException e) {
+                log.error(e);
                 throw new InternalServerErrorCust("File download error");
             }
         }
         return list;
     }
 
-    public void deleteFile(String fileName, User user, HttpServletResponse response) {
+    public void deleteFile(String fileName, User user) {
+        log.info("Удаление файла "+fileName);
         try {
             minioClient.removeObject(RemoveObjectArgs.builder()
                     .bucket(user.getBucket())
                     .object(fileName)
                     .build());
-            response.setStatus(200);
+          //  response.setStatus(200);
         } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
                  InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
                  XmlParserException e) {
+            log.error(e);
             throw new BadRequestExceptionCust("File deletion error");
         }
     }
 
-    public void editFileName(String fileName, String newName, User user, HttpServletResponse response) {
+    public void editFileName(String fileName, String newName, User user) {
+        log.info("Изменение файла "+ fileName);
         try {
             minioClient.copyObject(
                     CopyObjectArgs.builder()
@@ -140,27 +140,13 @@ public class BucketRepository {
         } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
                  InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
                  XmlParserException e) {
+            log.error(e);
             throw new InternalServerErrorCust("File edit error");
         }
-        deleteFile(fileName, user, response);
+        deleteFile(fileName, user);
     }
 
-    public void downloadFile(String fileName, User user) {
-        try {
-            minioClient.downloadObject(
-                    DownloadObjectArgs.builder()
-                            .bucket(user.getBucket())
-                            .object(fileName)
-                            .filename(fileName)
-                            .build());
-        } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
-                 InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
-                 XmlParserException e) {
-            throw new RuntimeException(e);
-        }
-    }
-
-    public InputStream getFile(String fileName, User user) {
+     public InputStream getFile(String fileName, User user) {
         try {
             return minioClient.getObject(
                     GetObjectArgs.builder()
@@ -170,6 +156,7 @@ public class BucketRepository {
         } catch (ErrorResponseException | InsufficientDataException | InternalException | InvalidKeyException |
                  InvalidResponseException | IOException | NoSuchAlgorithmException | ServerException |
                  XmlParserException e) {
+            log.error(e);
             throw new InternalServerErrorCust("File download error");
         }
     }

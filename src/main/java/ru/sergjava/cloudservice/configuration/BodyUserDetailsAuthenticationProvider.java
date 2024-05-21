@@ -1,6 +1,7 @@
 package ru.sergjava.cloudservice.configuration;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
@@ -9,7 +10,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import ru.sergjava.cloudservice.exceptions.BadRequestExceptionCust;
-
+@Log4j2
 @Component
 @RequiredArgsConstructor
 public class BodyUserDetailsAuthenticationProvider {
@@ -24,6 +25,7 @@ public class BodyUserDetailsAuthenticationProvider {
         if (passwordEncoder.matches(password, userDetails.getPassword())) {
             return new UsernamePasswordAuthenticationToken(username, password, userDetails.getAuthorities());
         } else {
+            log.error("Bad credentials");
             throw new BadRequestExceptionCust("Bad credentials");
         }
 

@@ -6,6 +6,7 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContext;
@@ -21,7 +22,7 @@ import java.time.ZoneId;
 import java.util.Date;
 import java.util.Optional;
 import java.util.UUID;
-
+@Log4j2
 @Component
 public class JwtTokenHandler {
 
@@ -59,17 +60,20 @@ public class JwtTokenHandler {
         try {
             jsonAuthToken = objectMapper.writeValueAsString(authToken);
         } catch (JsonProcessingException e) {
+            log.error(e);
             throw new RuntimeException(e);
         }
         try {
             out = response.getWriter();
             out.println(jsonAuthToken);
         } catch (IOException e) {
+            log.error(e);
             throw new RuntimeException(e);
         } finally {
             assert out != null;
             out.close();
         }
+        log.info("Токен успешно сгенерирован.");
         return authToken;
     }
 
@@ -77,10 +81,17 @@ public class JwtTokenHandler {
         String token = request.getHeader("auth-token");
         SecurityContext context = SecurityContextHolder.getContext();
         if (token == null) {
+            log.warn("Токен пустой.");
             return false;
         } else {
             token = token.substring(7);
-            return token.equals(tokenRepository.getTokenByName(context.getAuthentication().getPrincipal().toString()).getToken());
+            if (token.equals(tokenRepository.getTokenByName(context.getAuthentication().getPrincipal().toString()).getToken())) {
+                log.info("Токен валиден");
+                return true;
+            } else {
+               log.warn("Токен не валиден.");
+               return false;
+            }
         }
     }
 

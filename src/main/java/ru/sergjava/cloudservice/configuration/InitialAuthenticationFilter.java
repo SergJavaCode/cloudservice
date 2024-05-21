@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -25,6 +26,7 @@ import java.util.stream.Collectors;
 
 import static org.springframework.security.web.context.HttpSessionSecurityContextRepository.SPRING_SECURITY_CONTEXT_KEY;
 
+@Log4j2
 @Component
 public class InitialAuthenticationFilter extends OncePerRequestFilter {
     private final BodyUserDetailsAuthenticationProvider bodyUserDetailsAuthenticationProvider;
@@ -57,7 +59,7 @@ public class InitialAuthenticationFilter extends OncePerRequestFilter {
                 authentication = new UsernamePasswordAuthenticationToken(userName, password);
                 authentication = bodyUserDetailsAuthenticationProvider.authenticate(authentication);
                 if (authentication == null) {
-                    this.logger.trace("Не обработан запрос на аутентификацию, так как не удалось найти имя пользователя и пароль в заголовке базовой авторизации");
+                    log.error("Не обработан запрос на аутентификацию, так как не удалось найти имя пользователя и пароль в заголовке базовой авторизации");
                     filterChain.doFilter(request, response);
                     return;
                 }
@@ -74,7 +76,9 @@ public class InitialAuthenticationFilter extends OncePerRequestFilter {
                 response.setHeader("Authorization", "OK");
                 response.setStatus(HttpServletResponse.SC_OK);
                 response.setContentType("application/json;charset=UTF-8");
+                log.info("Аутентификация пройдена успешно.");
             } catch (BadCredentialsException | UsernameNotFoundException e) {
+                log.error(e);
                 throw new BadRequestExceptionCust("Bad credentials");
             }
 

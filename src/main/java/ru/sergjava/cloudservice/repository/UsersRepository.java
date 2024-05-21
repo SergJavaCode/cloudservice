@@ -17,12 +17,6 @@ public interface UsersRepository extends JpaRepository<User, Authorities> {
     @Query(value = "select u.bucket from User u where u.username=:username")
     String getBucketUser(@Param("username") String username);
 
-    //
-//    @Query(value = "select p from Person p where p.personID.age<:age")
-//    List<Person> findByPersonIDAgeLessThan(@Param("age") Integer age, Sort sort);
-//
-//    @Query(value = "select p from Person p where p.personID.name=:name and p.personID.surname=:surname")
-//    List<Optional<Person>> findByPersonIDNameAndPersonIDSurname(@Param("name") String name, @Param("surname") String surname);
     @Transactional
     @Modifying
     @Query(nativeQuery = true, value = "update users set bucket=:bucket where username=:username")
