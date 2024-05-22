@@ -77,7 +77,7 @@ public class ServiceUsersBucketImpl implements ServiceUsersBucketInt {
         return bucketRepository.getFile(fileName, getUser());
     }
 
-    private User getUser() {
+    public User getUser() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userName = authentication.getPrincipal().toString();
         return usersRepository.getUserByName(userName);

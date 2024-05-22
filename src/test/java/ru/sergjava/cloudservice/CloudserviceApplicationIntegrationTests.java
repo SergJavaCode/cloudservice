@@ -20,9 +20,10 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
+//!!! перед выполнением теста необходимо ОТКЛЮЧИТЬ liquibase в application.properties
 @SpringBootTest
 @AutoConfigureMockMvc
-class CloudserviceApplicationTests {
+class CloudserviceApplicationIntegrationTests {
 
     @Autowired
     private ObjectMapper objectMapper;
@@ -76,7 +77,7 @@ class CloudserviceApplicationTests {
     @Test
     public void bucketRepositoryTest() {
         assertDoesNotThrow(() -> {
-            bucketRepository.listFiles(repository.getUserByName("user@mail.ru"), response, 3).stream().forEach(System.out::println);
+            bucketRepository.listFiles(repository.getUserByName("user@mail.ru"), 3).stream().forEach(System.out::println);
         });
     }
 }
