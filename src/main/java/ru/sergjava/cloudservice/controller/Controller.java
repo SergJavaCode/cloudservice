@@ -8,6 +8,7 @@ import lombok.extern.java.Log;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import ru.sergjava.cloudservice.exceptions.InternalServerErrorCust;
 import ru.sergjava.cloudservice.service.ServiceUsersBucketImpl;
 
 import java.io.BufferedOutputStream;
@@ -69,7 +70,7 @@ public class Controller {
             response.flushBuffer();
         } catch (IOException e) {
             log.error(e);
-            throw new RuntimeException(e);
+            throw new InternalServerErrorCust("Ошибка при передаче файла в response: " + e.getMessage());
         }
         log.info("Файл "+fileName+ " успешно скачан.");
     }

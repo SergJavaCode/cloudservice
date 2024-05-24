@@ -74,7 +74,7 @@ public class CloudserviceApplicationModuleTests {
             field.setAccessible(true);
             field.set(jwtTokenHandler, 30);
         } catch (NoSuchFieldException | IllegalAccessException e) {
-            e.printStackTrace();
+            Assert.assertTrue(false);
         }
         AuthToken authToken = jwtTokenHandler.generateToken(response, "user@mail.ru");
         Assert.assertNotNull(authToken);
